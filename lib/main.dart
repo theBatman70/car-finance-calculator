@@ -1,9 +1,14 @@
+import 'package:car_finance_calc/model/car.dart';
+import 'package:car_finance_calc/model/loan_option.dart';
 import 'package:flutter/material.dart';
-
-import 'view/screens/home_page.dart';
+import 'package:provider/provider.dart';
+import 'view/screens/home_page/home_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => Car()),
+    ChangeNotifierProvider(create: (_) => LoanOption()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +24,7 @@ class MyApp extends StatelessWidget {
             seedColor: const Color.fromRGBO(37, 36, 34, 1)),
         useMaterial3: true,
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }

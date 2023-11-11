@@ -1,104 +1,208 @@
 import 'package:car_finance_calc/constants/colors.dart';
+import 'package:car_finance_calc/model/car.dart';
+import 'package:car_finance_calc/model/loan_option.dart';
+import 'package:car_finance_calc/utils/text_editing_controllers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import '../../utils/parse_amount_into_int.dart';
+import '../../utils/thousands_separator_input_formatter.dart';
 
 class DetailInputSection extends StatefulWidget {
   const DetailInputSection({Key? key}) : super(key: key);
 
   @override
-  _DetailInputSectionState createState() => _DetailInputSectionState();
+  State<DetailInputSection> createState() => _DetailInputSectionState();
 }
 
 class _DetailInputSectionState extends State<DetailInputSection> {
   final TextEditingController downPaymentController = TextEditingController();
-  final TextEditingController arpController = TextEditingController();
-  final TextEditingController timePeriodController = TextEditingController();
+  final TextEditingController aprController = PercentageEditingController();
+  final TextEditingController timePeriodController = MonthsEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late LoanOption option;
+
+  @override
+  void dispose() {
+    super.dispose();
+    downPaymentController.dispose();
+    aprController.dispose();
+    timePeriodController.dispose();
+  }
+
+  // Values
+  late int _carPrice;
+  late int _downPayment;
+  late double _apr;
+  late int _timePeriod;
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      print('Detail Form is valid');
+      _formKey.currentState!.save();
+      option.carPrice = _carPrice;
+      option.downPayment = _downPayment;
+      option.apr = _apr;
+      option.timePeriod = _timePeriod;
+      option.isEntered = true;
+      print(option.carPrice + option.apr);
+      option.calculateLoanDetails();
+      Navigator.of(context).pop();
+      print(option.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    _carPrice = Provider.of<Car>(context).carPrice;
+    option = Provider.of<LoanOption>(context);
     return Container(
       color: black,
       height: MediaQuery.sizeOf(context).height,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-      child: ListView(
-        children: [
-          InputRow(
-            name: 'Down Payment :',
-            textEditingController: downPaymentController,
-          ),
-          const SizedBox(height: 8),
-          InputRow(
-            name: 'Annual Interest Rate :',
-            textEditingController: arpController,
-          ),
-          const SizedBox(height: 8),
-          InputRow(
-            name: 'Time Period :',
-            textEditingController: timePeriodController,
-          ),
-          const SizedBox(height: 25),
-          Center(
-            child: Container(
-              width: 150,
-              height: 50,
-              decoration: ShapeDecoration(
-                  color: yellowGreen,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20))),
-              child: TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.done,
-                  color: black,
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Down Payment :',
+                  style: TextStyle(color: pink),
                 ),
-                label: const Text(
-                  'Calculate',
-                  style: TextStyle(fontSize: 16, color: blackish),
+                const SizedBox(width: 16),
+                SizedBox(
+                  width: MediaQuery.sizeOf(context).width * .50,
+                  height: 45,
+                  child: TextFormField(
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    onSaved: (value) {
+                      _downPayment = parseAmountIntoInt(value!);
+                    },
+                    keyboardType: TextInputType.number,
+                    controller: downPaymentController,
+                    decoration: const InputDecoration(
+                        fillColor: white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30)))),
+                    validator: (value) => parseAmountIntoInt(value!).isNegative
+                        ? 'Invalid Input'
+                        : null,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.singleLineFormatter,
+                      ThousandsSeparatorInputFormatter(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Annual Rate Percentage :',
+                  style: TextStyle(color: pink),
+                ),
+                const SizedBox(width: 16),
+                SizedBox(
+                  width: MediaQuery.sizeOf(context).width * .35,
+                  height: 45,
+                  child: TextFormField(
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    onSaved: (value) {
+                      _apr = parseAmountIntoDouble(value!);
+                    },
+                    keyboardType: TextInputType.number,
+                    controller: aprController,
+                    decoration: const InputDecoration(
+                        fillColor: white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30)))),
+                    validator: (value) =>
+                        parseAmountIntoDouble(value!).isNegative
+                            ? 'Invalid Input'
+                            : null,
+                    inputFormatters: [
+                      // FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.singleLineFormatter,
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Time Period :',
+                  style: TextStyle(color: pink),
+                ),
+                const SizedBox(width: 16),
+                SizedBox(
+                  width: MediaQuery.sizeOf(context).width * .35,
+                  height: 45,
+                  child: TextFormField(
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    onSaved: (value) {
+                      _timePeriod = parseAmountIntoInt(value!);
+                    },
+                    keyboardType: TextInputType.number,
+                    controller: timePeriodController,
+                    decoration: const InputDecoration(
+                        fillColor: white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30)))),
+                    validator: (value) => parseAmountIntoInt(value!).isNegative
+                        ? 'Invalid Input'
+                        : null,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.singleLineFormatter,
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 25),
+            Center(
+              child: Container(
+                width: 150,
+                height: 50,
+                decoration: ShapeDecoration(
+                    color: yellowGreen,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20))),
+                child: TextButton.icon(
+                  onPressed: _submitForm,
+                  icon: const Icon(
+                    Icons.done,
+                    color: black,
+                  ),
+                  label: const Text(
+                    'Calculate',
+                    style: TextStyle(fontSize: 16, color: blackish),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class InputRow extends StatelessWidget {
-  final String name;
-  final TextEditingController textEditingController;
-
-  const InputRow({
-    Key? key,
-    required this.name,
-    required this.textEditingController,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          name,
-          style: const TextStyle(color: pink),
-        ),
-        const SizedBox(width: 16),
-        Container(
-          width: 180,
-          height: 40,
-          padding: const EdgeInsets.fromLTRB(10, 8, 8, 3),
-          decoration: ShapeDecoration(
-              color: pink,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20))),
-          child: TextField(
-            keyboardType: TextInputType.number,
-            controller: textEditingController,
-            decoration: const InputDecoration(border: InputBorder.none),
-          ),
-        ),
-      ],
     );
   }
 }

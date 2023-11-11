@@ -1,7 +1,12 @@
 import 'package:car_finance_calc/constants/colors.dart';
 import 'package:car_finance_calc/model/car.dart';
-import 'package:car_finance_calc/view/screens/home_page.dart';
+import 'package:car_finance_calc/view/widgets/bottom_sheets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import '../../utils/parse_amount_into_int.dart';
+import '../../utils/thousands_separator_input_formatter.dart';
 
 class PriceInputSection extends StatefulWidget {
   const PriceInputSection({super.key});
@@ -12,15 +17,35 @@ class PriceInputSection extends StatefulWidget {
 
 class _PriceInputSectionState extends State<PriceInputSection> {
   final TextEditingController priceController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late Car car;
-  bool showError = false;
+
+  int _priceInput = 0;
+
+  @override
+  void dispose() {
+    super.dispose();
+    priceController.dispose();
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      print('Price Form is valid');
+      _formKey.currentState!.save();
+      car.carPrice = _priceInput;
+      print(car.carPrice);
+      Navigator.pop(context);
+      showDetailModalBottomSheet(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    car = Provider.of<Car>(context);
     return Container(
       color: blackish,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       child: ListView(
         children: [
           const Text(
@@ -34,76 +59,54 @@ class _PriceInputSectionState extends State<PriceInputSection> {
           ),
           const SizedBox(height: 12),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Container(
-                  height: 50,
-                  padding: const EdgeInsets.fromLTRB(10, 8, 8, 3),
-                  decoration: ShapeDecoration(
-                      color: white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20))),
-                  child: TextField(
+              Form(
+                key: _formKey,
+                child: SizedBox(
+                  width: MediaQuery.sizeOf(context).width * .70,
+                  child: TextFormField(
+                    maxLines: 1,
                     textAlign: TextAlign.center,
+                    onSaved: (value) {
+                      _priceInput = parseAmountIntoInt(value!);
+                    },
                     keyboardType: TextInputType.number,
                     controller: priceController,
-                    decoration: const InputDecoration(border: InputBorder.none),
+                    decoration: const InputDecoration(
+                        fillColor: white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30)))),
+                    validator: (value) => parseAmountIntoInt(value!).isNegative
+                        ? 'Invalid Input'
+                        : null,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.singleLineFormatter,
+                      ThousandsSeparatorInputFormatter(),
+                    ],
                   ),
                 ),
               ),
               const SizedBox(width: 10),
               Container(
-                width: 60,
-                height: 50,
+                width: 70,
+                height: 60,
                 decoration: ShapeDecoration(
                     color: yellowGreen,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20))),
+                        borderRadius: BorderRadius.circular(30))),
                 child: TextButton(
+                  onPressed: _submitForm,
                   child: const Icon(Icons.done),
-                  onPressed: () {
-                    int? carPrice = parseCarPrice(priceController);
-                    if (carPrice == null) {
-                      showError = true;
-                    } else {
-                      // Input is valid, create the Car object and proceed
-                      showError = false;
-                      car = Car(carPrice: carPrice);
-                      Navigator.pop(context);
-                      HomePage().showDetailModalBottomSheet(context);
-                    }
-                  },
                 ),
               ),
             ],
           ),
-          if (showError == true)
-            const Text(
-              'Enter a valid price',
-              style: TextStyle(fontSize: 12, color: Colors.red),
-            ),
         ],
       ),
     );
-  }
-}
-
-int? parseCarPrice(TextEditingController priceController) {
-  String priceText = priceController.text;
-
-  try {
-    int carPrice = int.parse(priceText);
-    print(carPrice);
-
-    if (carPrice <= 0) {
-      // Handle the case where the parsed value is 0 or negative
-      // You can show an error message or take another appropriate action
-      return null; // Return null to indicate an error
-    }
-
-    return carPrice;
-  } on FormatException {
-    // Handle the parsing error gracefully, e.g., show an error message to the user
-    return null; // Return null to indicate an error
   }
 }
