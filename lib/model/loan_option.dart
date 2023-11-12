@@ -48,7 +48,7 @@ class LoanOption with ChangeNotifier {
 
     // Calculate the monthly payment
     double monthlyInterestRate = (apr / 12 / 100);
-    int totalMonths = timePeriod * 12;
+    int totalMonths = timePeriod;
 
     // Use the pow function correctly
     monthlyPayment = loanAmount *

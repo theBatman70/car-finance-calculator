@@ -38,16 +38,9 @@ void showDetailModalBottomSheet(BuildContext context) {
     builder: (context) => Padding(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: DraggableScrollableSheet(
-        initialChildSize: 0.35,
-        maxChildSize: 0.9,
-        minChildSize: 0.2,
-        expand: false,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          child: const DetailInputSection(),
-        ),
-      ),
+      child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .4,
+          child: const DetailInputSection()),
     ),
   );
 }

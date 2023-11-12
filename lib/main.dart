@@ -1,5 +1,6 @@
 import 'package:car_finance_calc/model/car.dart';
 import 'package:car_finance_calc/model/loan_option.dart';
+import 'package:car_finance_calc/view_model/result_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'view/screens/home_page/home_page.dart';
@@ -8,6 +9,7 @@ void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => Car()),
     ChangeNotifierProvider(create: (_) => LoanOption()),
+    ChangeNotifierProvider(create: (_) => ViewToggle())
   ], child: const MyApp()));
 }
 

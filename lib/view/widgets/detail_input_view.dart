@@ -1,7 +1,6 @@
 import 'package:car_finance_calc/constants/colors.dart';
 import 'package:car_finance_calc/model/car.dart';
 import 'package:car_finance_calc/model/loan_option.dart';
-import 'package:car_finance_calc/utils/text_editing_controllers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -17,19 +16,8 @@ class DetailInputSection extends StatefulWidget {
 }
 
 class _DetailInputSectionState extends State<DetailInputSection> {
-  final TextEditingController downPaymentController = TextEditingController();
-  final TextEditingController aprController = PercentageEditingController();
-  final TextEditingController timePeriodController = MonthsEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late LoanOption option;
-
-  @override
-  void dispose() {
-    super.dispose();
-    downPaymentController.dispose();
-    aprController.dispose();
-    timePeriodController.dispose();
-  }
 
   // Values
   late int _carPrice;
@@ -64,7 +52,8 @@ class _DetailInputSectionState extends State<DetailInputSection> {
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       child: Form(
         key: _formKey,
-        child: ListView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,15 +65,16 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                 const SizedBox(width: 16),
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width * .50,
-                  height: 45,
+                  height: 50,
                   child: TextFormField(
+                    initialValue:
+                        option.isEntered ? option.downPayment.toString() : null,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     onSaved: (value) {
                       _downPayment = parseAmountIntoInt(value!);
                     },
                     keyboardType: TextInputType.number,
-                    controller: downPaymentController,
                     decoration: const InputDecoration(
                         fillColor: white,
                         filled: true,
@@ -103,7 +93,7 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -114,15 +104,16 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                 const SizedBox(width: 16),
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width * .35,
-                  height: 45,
+                  height: 50,
                   child: TextFormField(
+                    initialValue:
+                        option.isEntered ? option.apr.toString() : null,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     onSaved: (value) {
                       _apr = parseAmountIntoDouble(value!);
                     },
                     keyboardType: TextInputType.number,
-                    controller: aprController,
                     decoration: const InputDecoration(
                         fillColor: white,
                         filled: true,
@@ -134,14 +125,13 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                             ? 'Invalid Input'
                             : null,
                     inputFormatters: [
-                      // FilteringTextInputFormatter.digitsOnly,
                       FilteringTextInputFormatter.singleLineFormatter,
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -152,15 +142,16 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                 const SizedBox(width: 16),
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width * .35,
-                  height: 45,
+                  height: 50,
                   child: TextFormField(
+                    initialValue:
+                        option.isEntered ? option.timePeriod.toString() : null,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     onSaved: (value) {
                       _timePeriod = parseAmountIntoInt(value!);
                     },
                     keyboardType: TextInputType.number,
-                    controller: timePeriodController,
                     decoration: const InputDecoration(
                         fillColor: white,
                         filled: true,
@@ -178,7 +169,7 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                 ),
               ],
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 10),
             Center(
               child: Container(
                 width: 150,

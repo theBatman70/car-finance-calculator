@@ -16,17 +16,10 @@ class PriceInputSection extends StatefulWidget {
 }
 
 class _PriceInputSectionState extends State<PriceInputSection> {
-  final TextEditingController priceController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late Car car;
 
   int _priceInput = 0;
-
-  @override
-  void dispose() {
-    super.dispose();
-    priceController.dispose();
-  }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -66,13 +59,14 @@ class _PriceInputSectionState extends State<PriceInputSection> {
                 child: SizedBox(
                   width: MediaQuery.sizeOf(context).width * .70,
                   child: TextFormField(
+                    initialValue:
+                        car.isInitialized ? car.carPrice.toString() : null,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     onSaved: (value) {
                       _priceInput = parseAmountIntoInt(value!);
                     },
                     keyboardType: TextInputType.number,
-                    controller: priceController,
                     decoration: const InputDecoration(
                         fillColor: white,
                         filled: true,

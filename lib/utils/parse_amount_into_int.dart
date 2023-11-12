@@ -17,9 +17,8 @@ int parseAmountIntoInt(String priceText) {
   }
 }
 
-double parseAmountIntoDouble(String priceText) {
+double parseAmountIntoDouble(String numericText) {
   try {
-    final numericText = priceText.replaceAll(RegExp(r'[^0-9]'), '');
     double number = double.parse(numericText);
     print(number);
 
