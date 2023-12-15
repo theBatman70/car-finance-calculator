@@ -3,6 +3,7 @@ import 'package:car_finance_calc/model/car.dart';
 import 'package:car_finance_calc/model/loan_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/parse_amount_into_int.dart';
@@ -67,8 +68,9 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                   width: MediaQuery.sizeOf(context).width * .50,
                   height: 50,
                   child: TextFormField(
-                    initialValue:
-                        option.isEntered ? option.downPayment.toString() : null,
+                    initialValue: option.isEntered
+                        ? NumberFormat('#,###').format(option.downPayment)
+                        : null,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     onSaved: (value) {
@@ -109,12 +111,13 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                     initialValue:
                         option.isEntered ? option.apr.toString() : null,
                     maxLines: 1,
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.end,
                     onSaved: (value) {
                       _apr = parseAmountIntoDouble(value!);
                     },
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
+                        suffixText: '%',
                         fillColor: white,
                         filled: true,
                         border: OutlineInputBorder(
@@ -147,12 +150,13 @@ class _DetailInputSectionState extends State<DetailInputSection> {
                     initialValue:
                         option.isEntered ? option.timePeriod.toString() : null,
                     maxLines: 1,
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.right,
                     onSaved: (value) {
                       _timePeriod = parseAmountIntoInt(value!);
                     },
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
+                        suffixText: 'months',
                         fillColor: white,
                         filled: true,
                         border: OutlineInputBorder(

@@ -5,7 +5,7 @@ import 'package:car_finance_calc/view/widgets/bottom_sheets.dart';
 import 'package:car_finance_calc/view/widgets/first_view.dart';
 import 'package:car_finance_calc/view/widgets/input_details.dart';
 import 'package:car_finance_calc/view/widgets/results_widget.dart';
-import 'package:car_finance_calc/view_model/result_toggle.dart';
+import 'package:car_finance_calc/view_model/view_toggle.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +35,7 @@ class HomePage extends StatelessWidget {
                   padding: const EdgeInsets.all(26),
                   child: Column(
                     children: [
+                      const SizedBox(height: 30),
                       const Text(
                         'Price of the Car : ',
                         style: TextStyle(color: blackish, fontSize: 25),
@@ -54,7 +55,7 @@ class HomePage extends StatelessWidget {
                           )
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 80),
                       selectedView == resultsView
                           ? const ResultsView()
                           : const InputDetails(),

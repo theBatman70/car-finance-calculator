@@ -3,6 +3,7 @@ import 'package:car_finance_calc/model/car.dart';
 import 'package:car_finance_calc/view/widgets/bottom_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/parse_amount_into_int.dart';
@@ -59,8 +60,9 @@ class _PriceInputSectionState extends State<PriceInputSection> {
                 child: SizedBox(
                   width: MediaQuery.sizeOf(context).width * .70,
                   child: TextFormField(
-                    initialValue:
-                        car.isInitialized ? car.carPrice.toString() : null,
+                    initialValue: car.isInitialized
+                        ? NumberFormat('#,###').format(car.carPrice)
+                        : null,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     onSaved: (value) {
